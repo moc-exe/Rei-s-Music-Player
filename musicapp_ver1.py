@@ -5,7 +5,6 @@ import pygame
 import re
 import time
 
-
 # method for extracting the audio track length
 def getStrTracklength(file_path):
     # load the MP3 file
@@ -67,7 +66,7 @@ col12_layout = [[sg.Image(filename="./img/music-player-logo.png")]]
 layout = [
 
     [sg.Column(col11_layout, element_justification='center'), sg.Column(col12_layout)],
-    [sg.Button('Prev'), sg.Button('Play'), sg.Button('Pause'), sg.Button('Next'), sg.Button("Stop"), sg.Button("Exit"), sg.In(size=(25,1), enable_events=True ,key='-BROWSE-', visible=False), sg.FolderBrowse()],
+    [sg.Push(), sg.Button('Prev'), sg.Button('Play'), sg.Button('Pause'), sg.Button('Next'), sg.Button("Stop"), sg.Button("Exit"), sg.In(size=(25,1), enable_events=True ,key='-BROWSE-', visible=False), sg.FolderBrowse(), sg.Push()],
     [sg.StatusBar("Select a folder", key="-STATUS_BAR-")]
 
 ]
@@ -75,7 +74,8 @@ layout = [
 window = sg.Window("Rei's Music Player", layout, finalize=True, icon='./img/ico64.ico')
 
 # needa implement that stuff stillz
-autoplay = True
+autoplay = False
+loopPlaylist = False
 totalTrackLen = None
 mp3files = None
 mp3filenames = None
@@ -153,6 +153,8 @@ while True:
                                 default_value = 70
                                 ),
                     sg.Text('70%', font = 'Monospace 11', key = '-VOLUME_PERCENTAGE-'),
+                    sg.Checkbox("Autoplay", key = "-AUTOPLAY-", enable_events=True, pad = (3,0)), 
+                    sg.Checkbox("Loop Playlist", key = "-LOOP_PLAYLIST-", enable_events=True, pad = (3,0)), 
                     sg.Push()
                 ],
                 [sg.Text('Your Playlist', font = 'Monospace 14 bold', text_color = '#FFB067')],
@@ -223,6 +225,12 @@ while True:
         pygame.mixer.music.set_volume(values['-VOLUME-'] / 100.0)
         window['-VOLUME_PERCENTAGE-'].update(f'{int(values['-VOLUME-'])}%')
 
+    if event == '-AUTOPLAY-':
+        autoplay = not autoplay
+    
+    if event == '-LOOP_PLAYLIST-':
+        loopPlaylist = not loopPlaylist
+    
     if event == "Play":
         
         if not mp3files:
@@ -322,16 +330,34 @@ while True:
         window['-PLAYLIST-'].update(select_rows = [currentTrackIndex])
 
     # defo needa implement loop and autoplay properly for now we assume it's = True
-    if isPlaying and not pygame.mixer.music.get_busy(): # autoplay logic is all here for now ..?
+    if isPlaying and not pygame.mixer.music.get_busy() and autoplay: # autoplay logic is all here for now ..?
+        
         currentTrackIndex += 1
+        
+
+        if currentTrackIndex >= len(mp3files) and not loopPlaylist:
+            currentTrackIndex = 0
+            isPlaying = False
+            pygame.mixer.music.stop()
+            pygame.mixer.music.unload()
+            currentTrackPath = mp3files[currentTrackIndex]
+            pygame.mixer.music.load(currentTrackPath)
+            window['-STATUS_BAR-'].update(f'End of playlist reached')
+            window['-PLAYLIST-'].update(select_rows = [currentTrackIndex])
+            continue
+        
         if currentTrackIndex >= len(mp3files):
             currentTrackIndex = 0
+        
         currentTrackPath = mp3files[currentTrackIndex]
         pygame.mixer.music.load(currentTrackPath)
         pygame.mixer.music.play()
         trackStarted = True
         window['-STATUS_BAR-'].update(f'Playing {os.path.basename(currentTrackPath)}')
         window['-PLAYLIST-'].update(select_rows = [currentTrackIndex])
+        
+        
+        
 
 
 window.close()
