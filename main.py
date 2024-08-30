@@ -125,21 +125,24 @@ def generateEmptyPlaylistLayout():
     newLayout = [
 
     [sg.Push(), sg.Column(col11_layout, element_justification='center'), sg.Column(col12_layout), sg.Push()],
-    [
-        sg.Push(),
-        sg.Button('Prev', disabled=True), 
-        sg.Button('Play', disabled=True), 
-        sg.Button('Pause', disabled=True), 
-        sg.Button('Next', disabled = True), 
-        sg.Button("Stop", disabled = True), 
-        sg.Button("Exit"), 
-        sg.In(size=(25,1), enable_events=True ,key='-BROWSE-', visible=False), 
-        sg.FolderBrowse(),
-        sg.In(size=(25,1), enable_events=True, key = '-ADD_TRACK-', visible=False), 
-        sg.FileBrowse("Add Track"),
-        sg.Push() 
-        
-    ],
+    [   sg.Push(), 
+            sg.Button(key = 'Prev', image_filename = "./img/buttons/prev_64.png", button_color = sg.theme_background_color(), border_width=0),
+            sg.Button(key = 'Play', image_filename = "./img/buttons/play_button_64.png", button_color = sg.theme_background_color(), border_width=0),
+            sg.Button(key = 'Pause', image_filename = "./img/buttons/pause_red_64.png", button_color = sg.theme_background_color(), border_width=0),
+            sg.Button(key = 'Next', image_filename = "./img/buttons/next_64.png", button_color = sg.theme_background_color(), border_width=0), 
+            sg.Button(key = 'Stop', image_filename = "./img/buttons/stop_red_64.png", button_color = sg.theme_background_color(), border_width=0),
+            sg.Push()
+            
+        ],
+        [   
+            
+            sg.Push(),
+            sg.Button("Exit", expand_x=True), 
+            sg.In(size=(25,1), enable_events=True ,key='-BROWSE-', visible=False), sg.FolderBrowse("Choose Folder", expand_x=True),
+            sg.In(size=(25,1), enable_events=True, key = '-ADD_TRACK-', visible=False), sg.FileBrowse("Add Track File", expand_x=True),
+            sg.Push()
+            
+        ],
     [sg.Push(), sg.ProgressBar(100, size=(45, 5), key = "-PROGRESS-"), sg.Text(key = '-TRACK_TIME-'),sg.Push()],
     [sg.Text('Your Playlist: Empty', font = 'Monospace 14 bold', text_color = '#FFB067')],
     [sg.StatusBar("No Track Playing Just Yet", key="-STATUS_BAR-", size=(50,1))]
